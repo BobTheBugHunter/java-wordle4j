@@ -30,7 +30,7 @@ public class Wordle {
     }
 
     public static void game(WordleGame wordleGame) {
-        try(Scanner scanner = new Scanner(System.in)) {
+        try (Scanner scanner = new Scanner(System.in)) {
             LinkedHashMap<String, String> log = new LinkedHashMap<>();
             List<String> wordsFromUser = new ArrayList<>();
             boolean isWin = false;
