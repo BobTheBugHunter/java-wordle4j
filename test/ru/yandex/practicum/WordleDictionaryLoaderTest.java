@@ -1,7 +1,7 @@
 package ru.yandex.practicum;
 
-import Loader.WordleDictionary;
-import Loader.WordleDictionaryLoader;
+import loader.WordleDictionary;
+import loader.WordleDictionaryLoader;
 import org.junit.jupiter.api.*;
 
 import java.io.PrintWriter;

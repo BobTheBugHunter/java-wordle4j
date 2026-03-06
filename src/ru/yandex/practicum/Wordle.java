@@ -1,8 +1,8 @@
 package ru.yandex.practicum;
 
-import Exceptions.WordNotFoundInDictionary;
-import Loader.WordleDictionary;
-import Loader.WordleDictionaryLoader;
+import exceptions.WordNotFoundInDictionary;
+import loader.WordleDictionary;
+import loader.WordleDictionaryLoader;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
