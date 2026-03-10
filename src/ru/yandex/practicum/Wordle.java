@@ -4,7 +4,6 @@ import exceptions.WordNotFoundInDictionary;
 import loader.WordleDictionary;
 import loader.WordleDictionaryLoader;
 
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +26,7 @@ public class Wordle {
     public static void main(String[] args) {
 
 
-        try(PrintWriter pw = new PrintWriter(new FileWriter("log.txt", true))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("log.txt", true))) {
 
 
             WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
@@ -54,7 +53,7 @@ public class Wordle {
             System.out.println(word);
             StringBuilder symbols = new StringBuilder();
             while (steps != 0) {
-                try{
+                try {
                 System.out.println("Введите слово из 5 букв: ");
                 String wordFromUser = scanner.nextLine().trim().toLowerCase();
                 if (wordFromUser.isEmpty() && !log.isEmpty()) {
