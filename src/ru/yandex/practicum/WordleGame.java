@@ -3,6 +3,7 @@ package ru.yandex.practicum;
 import exceptions.WordNotFoundInDictionary;
 import loader.WordleDictionary;
 
+import java.io.PrintWriter;
 import java.util.*;
 
 /*
@@ -51,9 +52,9 @@ public class WordleGame {
         return words.get(index);
     }
 
-
-    public boolean isInputCorrect(WordleDictionary dictionary, String input) throws WordNotFoundInDictionary {
+    public boolean isInputCorrect(WordleDictionary dictionary, String input, PrintWriter pw) throws WordNotFoundInDictionary {
         if (!input.matches("[а-яА-ЯёЁ]+")) {
+            pw.println("Допускаются только символы русского алфавита!");
             System.out.println("Допускаются только символы русского алфавита!");
             return false;
         } else if (!dictionary.getWords().contains(input)) {
@@ -63,94 +64,50 @@ public class WordleGame {
         }
     }
 
-    public void filterDictionary(LinkedHashMap<String, String> log, WordleDictionary dictionary1) {
+    public void filterDictionary(LinkedHashMap<String, String> log, WordleDictionary dictionary1, PrintWriter pw) {
+        List<String> valueWords = new ArrayList<>(log.values());
+        List<String> keyWords = new ArrayList<>(log.keySet());
+        List<String> words = new ArrayList<>(dictionary1.getWords());
 
-        try {
+        Set<String> allMinus = new HashSet<>();
+        Set<String> allPlus = new HashSet<>();
+        Set<String> allIDK = new HashSet<>();
+        HashMap<Integer, String> guessWord = new HashMap<>();
 
-
-            List<String> valueWords = new ArrayList<>(log.values());
-
-            List<String> keyWords = new ArrayList<>(log.keySet());
-
-            List<String> words = new ArrayList<>(dictionary1.getWords());
-
-            List<String> allMinus = new ArrayList<>();
-            List<String> allPlus = new ArrayList<>();
-            List<String> allIDK = new ArrayList<>();
-            HashMap<Integer, String> guessWord = new HashMap<>();
-
-            String[] valueString;
-            String[] keyString;
-            for (int i = 0; i < valueWords.size(); i++) {
-                valueString = valueWords.get(i).split("");
-                keyString = keyWords.get(i).split("");
-                for (int j = 0; j < valueString.length; j++) {
-                    if (valueString[j].equals("+")) {
-                        allPlus.add(keyString[j]);
-                        guessWord.put(j, keyString[j]);
+        String[] valueString;
+        String[] keyString;
+        for (int i = 0; i < valueWords.size(); i++) {
+            if (valueWords.get(i) == null) continue;
+            valueString = valueWords.get(i).split("");
+            keyString = keyWords.get(i).split("");
+            for (int j = 0; j < valueString.length; j++) {
+                if (valueString[j].equals("+")) {
+                    allPlus.add(keyString[j]);
+                    guessWord.put(j, keyString[j]);
+                } else if (valueString[j].equals("-")) {
+                    if (!allPlus.contains(keyString[j])) {
+                        allMinus.add(keyString[j]);
                     }
-                }
-                for (int j = 0; j < valueString.length; j++) {
-                    if (valueString[j].equals("-")) {
-                        if (!allPlus.contains(keyString[j])) {
-                            allMinus.add(keyString[j]);
-                        }
-                    } else if (valueString[j].equals("^")) {
-                        allIDK.add(keyString[j]);
-                    }
-                }
-
-            }
-            for (int j = words.size() - 1; j >= 0; j--) {
-                String word = words.get(j);
-                for (String minus : allMinus) {
-                    if (word.contains(minus)) {
-                        words.remove(j);
-                        break;
-                    }
+                } else if (valueString[j].equals("^")) {
+                    allIDK.add(keyString[j]);
                 }
             }
+        }
 
-            for (int j = words.size() - 1; j >= 0; j--) {
-                String word = words.get(j);
-                boolean hasAllIDK = true;
-                for (String idk : allIDK) {
-                    if (!word.contains(idk)) {
-                        hasAllIDK = false;
-                        break;
-                    }
-                }
-                if (!hasAllIDK) {
-                    words.remove(j);
-                }
-            }
+        words.removeIf(word -> allMinus.stream().anyMatch(word::contains));
+        words.removeIf(word -> allIDK.stream().anyMatch(letter -> !word.contains(letter)));
+        words.removeIf(word -> {
+            String[] letters = word.split("");
+            return guessWord.entrySet().stream()
+                    .anyMatch(e -> !letters[e.getKey()].equals(e.getValue()));
+        });
 
-
-            for (int i = words.size() - 1; i >= 0; i--) {
-                String word = words.get(i);
-                String[] position = word.split("");
-                boolean matchesGuess = true;
-                for (int j = 0; j < position.length; j++) {
-                    String guessedLetter = guessWord.get(j);
-                    if (guessedLetter != null && !position[j].equals(guessedLetter)) {
-                        matchesGuess = false;
-                        break;
-                    }
-                }
-                if (!matchesGuess) {
-                    words.remove(i);
-                }
-            }
-
-            if (words.isEmpty()) {
-                System.out.println("Нет подходящих слов для подсказки");
-            } else {
-                Random rand = new Random();
-                int index = rand.nextInt(words.size());
-                System.out.println("Возможное слово: " + words.get(index));
-            }
-        } catch (NullPointerException e) {
-            System.out.println("Возникла ошибка с null!");
+        if (words.isEmpty()) {
+            pw.println("Нет подходящих слов для подсказки");
+            System.out.println("Нет подходящих слов для подсказки");
+        } else {
+            Random rand = new Random();
+            System.out.println("Возможное слово: " + words.get(rand.nextInt(words.size())));
         }
     }
 }

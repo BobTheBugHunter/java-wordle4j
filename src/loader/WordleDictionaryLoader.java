@@ -11,23 +11,27 @@ import java.util.List;
  */
 public class WordleDictionaryLoader {
 
-    public WordleDictionary loader(String fileName) {
+    private final int MAX_LENGTH_OF_WORDS = 5;
+
+    public WordleDictionary loader(String fileName, PrintWriter pw) {
         List<String> words = new ArrayList<>();
         String line;
         try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
             while (bf.ready()) {
                 line = bf.readLine();
-                if (line.length() == 5) {
+                if (line.length() == MAX_LENGTH_OF_WORDS) {
                     if (line.contains("ё")) {
-                        words.add(line.toLowerCase().replaceAll("ё","e"));
+                        words.add(line.toLowerCase().replaceAll("ё","е"));
                     } else {
                         words.add(line.toLowerCase());
                     }
                 }
             }
         } catch (FileNotFoundException e) {
+            pw.println("File not found");
             System.out.println("File not found");
         } catch (IOException e) {
+            pw.println("Error opening file");
             System.out.println("Error opening file");
         }
         return new WordleDictionary(words);

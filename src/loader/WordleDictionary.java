@@ -1,5 +1,6 @@
 package loader;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -17,7 +18,7 @@ public class WordleDictionary {
     }
 
     public List<String> getWords() {
-        return words;
+        return new ArrayList<>(words);
     }
 
     public void setWords(List<String> words) {

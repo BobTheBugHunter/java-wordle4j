@@ -23,7 +23,7 @@ class WordleGameTest {
         log.println("=== WordleGameTest начало ===");
 
         WordleDictionaryLoader loader = new WordleDictionaryLoader();
-        dictionary = loader.loader("words_ru.txt");
+        dictionary = loader.loader("words_ru.txt", log);
         log.println("Словарь загружен, слов: " + dictionary.getWords().size());
     }
 
@@ -53,7 +53,7 @@ class WordleGameTest {
     @Test
     void testValidWordReturnsTrue() throws WordNotFoundInDictionary {
         String word = dictionary.getWords().get(0);
-        boolean result = game.isInputCorrect(dictionary, word);
+        boolean result = game.isInputCorrect(dictionary, word, log);
 
         assertTrue(result);
         log.println("Слово принято: " + word);
@@ -62,34 +62,34 @@ class WordleGameTest {
     @Test
     void testUnknownWordThrowsException() {
         assertThrows(WordNotFoundInDictionary.class, () -> {
-            game.isInputCorrect(dictionary, "ааааа");
+            game.isInputCorrect(dictionary, "ааааа", log);
         });
     }
 
     @Test
     void testDigitsReturnFalse() throws WordNotFoundInDictionary {
-        boolean result = game.isInputCorrect(dictionary, "12345");
+        boolean result = game.isInputCorrect(dictionary, "12345", log);
 
         assertFalse(result);
     }
 
     @Test
     void testLatinLettersReturnFalse() throws WordNotFoundInDictionary {
-        boolean result = game.isInputCorrect(dictionary, "hello");
+        boolean result = game.isInputCorrect(dictionary, "hello", log);
 
         assertFalse(result);
     }
 
     @Test
     void testEmptyStringReturnsFalse() throws WordNotFoundInDictionary {
-        boolean result = game.isInputCorrect(dictionary, "");
+        boolean result = game.isInputCorrect(dictionary, "", log);
 
         assertFalse(result);
     }
 
     @Test
     void testStringWithSpacesReturnsFalse() throws WordNotFoundInDictionary {
-        boolean result = game.isInputCorrect(dictionary, "а б в г д");
+        boolean result = game.isInputCorrect(dictionary, "а б в г д", log);
 
         assertFalse(result);
     }
@@ -97,29 +97,29 @@ class WordleGameTest {
 
     @Test
     void testFilterWithEmptyLog() {
-        LinkedHashMap<String, String> log = new LinkedHashMap<>();
+        LinkedHashMap<String, String> log1 = new LinkedHashMap<>();
 
-        assertDoesNotThrow(() -> game.filterDictionary(log, dictionary));
+        assertDoesNotThrow(() -> game.filterDictionary(log1, dictionary,log));
     }
 
     @Test
     void testFilterWithNullValue() {
-        LinkedHashMap<String, String> log = new LinkedHashMap<>();
-        log.put("абзац", null);
+        LinkedHashMap<String, String> log1 = new LinkedHashMap<>();
+        log1.put("абзац", null);
 
-        assertDoesNotThrow(() -> game.filterDictionary(log, dictionary));
+        assertDoesNotThrow(() -> game.filterDictionary(log1, dictionary, log));
     }
 
     @Test
     void testFilterWithRealGuesses() {
-        LinkedHashMap<String, String> log = new LinkedHashMap<>();
-        log.put("аббат", "-+---");
-        log.put("абрис", "++--^");
+        LinkedHashMap<String, String> log1 = new LinkedHashMap<>();
+        log1.put("аббат", "-+---");
+        log1.put("абрис", "++--^");
 
         List<String> smallWords = Arrays.asList("абзац", "аббат", "аборт", "абрек", "абрис");
         WordleDictionary smallDict = new WordleDictionary(smallWords);
 
-        assertDoesNotThrow(() -> game.filterDictionary(log, smallDict));
+        assertDoesNotThrow(() -> game.filterDictionary(log1, smallDict, log));
         this.log.println("filterDictionary с 2 ходами — ОК");
     }
 

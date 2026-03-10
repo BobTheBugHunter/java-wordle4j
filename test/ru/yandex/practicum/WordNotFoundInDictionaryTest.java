@@ -37,11 +37,11 @@ class WordNotFoundInDictionaryTest {
     @Test
     void testIsInputCorrectThrowsForUnknownWord() throws Exception {
         WordleDictionaryLoader loader = new WordleDictionaryLoader();
-        WordleDictionary dictionary = loader.loader("words_ru.txt");
+        WordleDictionary dictionary = loader.loader("words_ru.txt", log);
         WordleGame game = new WordleGame(dictionary);
 
         assertThrows(WordNotFoundInDictionary.class, () -> {
-            game.isInputCorrect(dictionary, "ааааа");
+            game.isInputCorrect(dictionary, "ааааа", log);
         });
         log.println("Исключение выброшено для несловарного слова — ОК");
     }

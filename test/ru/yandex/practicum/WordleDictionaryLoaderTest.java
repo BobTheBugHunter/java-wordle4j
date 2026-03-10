@@ -26,7 +26,7 @@ class WordleDictionaryLoaderTest {
 
     @Test
     void testLoadRealFileReturnsWords() {
-        WordleDictionary result = loader.loader("words_ru.txt");
+        WordleDictionary result = loader.loader("words_ru.txt", log);
 
         assertNotNull(result);
         assertFalse(result.getWords().isEmpty());
@@ -35,7 +35,7 @@ class WordleDictionaryLoaderTest {
 
     @Test
     void testAllWordsHaveLengthFive() {
-        WordleDictionary result = loader.loader("words_ru.txt");
+        WordleDictionary result = loader.loader("words_ru.txt", log);
 
         for (String word : result.getWords()) {
             assertEquals(5, word.length(), "Слово не 5 букв: " + word);
@@ -44,7 +44,7 @@ class WordleDictionaryLoaderTest {
 
     @Test
     void testMissingFileReturnsEmptyDictionary() {
-        WordleDictionary result = loader.loader("несуществующий_файл.txt");
+        WordleDictionary result = loader.loader("несуществующий_файл.txt", log);
 
         assertNotNull(result);
         assertTrue(result.getWords().isEmpty());
@@ -53,7 +53,7 @@ class WordleDictionaryLoaderTest {
 
     @Test
     void testNoYoLetterInDictionary() {
-        WordleDictionary result = loader.loader("words_ru.txt");
+        WordleDictionary result = loader.loader("words_ru.txt", log);
 
         for (String word : result.getWords()) {
             assertFalse(word.contains("ё"), "Нашлось слово с ё: " + word);

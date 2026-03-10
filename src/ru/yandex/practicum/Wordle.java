@@ -4,6 +4,10 @@ import exceptions.WordNotFoundInDictionary;
 import loader.WordleDictionary;
 import loader.WordleDictionaryLoader;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,14 +26,22 @@ public class Wordle {
 
     public static void main(String[] args) {
 
-        WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
-        WordleDictionary wordleDictionary = wordleDictionaryLoader.loader("words_ru.txt");
-        WordleGame wordleGame = new WordleGame(wordleDictionary);
-        game(wordleGame);
 
+        try(PrintWriter pw = new PrintWriter(new FileWriter("log.txt", true))) {
+
+
+            WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader();
+            WordleDictionary wordleDictionary = wordleDictionaryLoader.loader("words_ru.txt", pw);
+            WordleGame wordleGame = new WordleGame(wordleDictionary);
+            game(wordleGame, pw);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    public static void game(WordleGame wordleGame) {
+
+    public static void game(WordleGame wordleGame, PrintWriter pw) {
+        final int FIRST_STEP = 6;
         try (Scanner scanner = new Scanner(System.in)) {
             LinkedHashMap<String, String> log = new LinkedHashMap<>();
             List<String> wordsFromUser = new ArrayList<>();
@@ -37,20 +49,24 @@ public class Wordle {
             System.out.println("Загадано слово из 5 букв. У вас 6 попыток.");
             int steps = 6;
             int count = 0;
-            int plusCount = 0;
             String word = wordleGame.getRandomWord(wordleGame.getDictionary().getWords());
-            String[] symbolsFromPC = word.split("");
+            char[] symbolsFromPC = word.toCharArray();
             System.out.println(word);
             StringBuilder symbols = new StringBuilder();
             while (steps != 0) {
+                try{
                 System.out.println("Введите слово из 5 букв: ");
                 String wordFromUser = scanner.nextLine().trim().toLowerCase();
-                if (wordFromUser.isEmpty() && plusCount != 0) {
-                    wordleGame.filterDictionary(log, wordleGame.getDictionary());
+                if (wordFromUser.isEmpty() && !log.isEmpty()) {
+                    wordleGame.filterDictionary(log, wordleGame.getDictionary(), pw);
                     continue;
                 }
-                if (!wordleGame.isInputCorrect(wordleGame.getDictionary(), wordFromUser)) {
+                if (!wordleGame.isInputCorrect(wordleGame.getDictionary(), wordFromUser, pw)) {
                     continue;
+                }
+
+                if (wordFromUser.contains("ё")) {
+                    wordFromUser = wordFromUser.replace("ё", "е");
                 }
 
                 if (wordsFromUser.contains(wordFromUser) && !wordsFromUser.isEmpty()) {
@@ -58,7 +74,7 @@ public class Wordle {
                     continue;
                 }
 
-                if (word.equals(wordFromUser)) {
+                if (word.equals(wordFromUser) && steps == FIRST_STEP) {
                     System.out.println("Поздравляю! Вы угадали слово " + word + " за 1 попытку!");
                     isWin = true;
                     break;
@@ -66,22 +82,9 @@ public class Wordle {
 
                 wordsFromUser.add(wordFromUser);
 
-                if (wordFromUser.contains("ё")) {
-                    wordFromUser = wordFromUser.replace("ё", "е");
-                }
+                appendSymbolsFromUser(word, wordFromUser, symbolsFromPC, symbols);
 
-                String[] symbolsFromUser = wordFromUser.split("");
-                for (int i = 0; i < symbolsFromPC.length; i++) {
-                    if (symbolsFromUser[i].equals(symbolsFromPC[i])) {
-                        symbols.append("+");
-                        plusCount++;
-                    } else if (word.contains(symbolsFromUser[i])) {
-                        symbols.append("^");
-                        plusCount++;
-                    } else {
-                        symbols.append("-");
-                    }
-                }
+
                 if (word.equals(wordFromUser)) {
                     System.out.println("Результат: " + symbols.toString());
                     System.out.println("Поздравляю! Вы угадали слово " + word + " за " + count + " попытки!");
@@ -95,13 +98,30 @@ public class Wordle {
                 System.out.println("Результат: " + symbols.toString());
                 System.out.println("Осталось попыток:  " + steps);
                 symbols.delete(0, symbols.length());
-
+            } catch (WordNotFoundInDictionary ex) {
+                    pw.println("Введенное слово не существует в словаре");
+                    System.out.println("Введенное слово не существует в словаре");
+                    continue;
+                }
             }
             if (!isWin) {
                 System.out.println("К сожалению в проиграли :(\n загаданное слово: " + word);
             }
-        } catch (WordNotFoundInDictionary e) {
-            System.out.println("Введенное слово не существует в словаре");
+        }
+    }
+
+    public static void appendSymbolsFromUser(String word, String wordFromUser,
+                                             char[] symbolsFromPC, StringBuilder symbols) {
+
+        String[] symbolsFromUser = wordFromUser.split("");
+        for (int i = 0; i < symbolsFromPC.length; i++) {
+            if (symbolsFromUser[i].equals(symbolsFromPC[i])) {
+                symbols.append("+");
+            } else if (word.contains(symbolsFromUser[i])) {
+                symbols.append("^");
+            } else {
+                symbols.append("-");
+            }
         }
     }
 
