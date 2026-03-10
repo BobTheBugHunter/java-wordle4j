@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class WordleDictionaryLoader {
 
-    private final int MAX_LENGTH_OF_WORDS = 5;
+    private final int maxLengthOfWords = 5;
 
     public WordleDictionary loader(String fileName, PrintWriter pw) {
         List<String> words = new ArrayList<>();
@@ -19,7 +19,7 @@ public class WordleDictionaryLoader {
         try (BufferedReader bf = new BufferedReader(new FileReader(fileName))) {
             while (bf.ready()) {
                 line = bf.readLine();
-                if (line.length() == MAX_LENGTH_OF_WORDS) {
+                if (line.length() == maxLengthOfWords) {
                     if (line.contains("ё")) {
                         words.add(line.toLowerCase().replaceAll("ё","е"));
                     } else {
